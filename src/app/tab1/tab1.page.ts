@@ -2,6 +2,7 @@ import { CardI } from './../models/card.interface';
 import { Component } from '@angular/core';
 import { Stripe } from '@ionic-native/stripe/ngx';
 import { CardIO } from '@ionic-native/card-io/ngx';
+import { CardService } from "../services/card.service";
 
 @Component({
   selector: 'app-tab1',
@@ -20,30 +21,13 @@ export class Tab1Page {
       postalCode: ''
     }
 
-  constructor(public stripe: Stripe,
-    public cardIO: CardIO) {
-      this.stripe.setPublishableKey('pk_test_51GvW90Cf7Zx11rAzopLz1xU21BreA8l1P4HuKaxyr4luVVdffP7F3GuoVASDwycRhXyC0JFjgvOKB09KAUOc91vP00fNc2rBje');
+  constructor(public cardIO: CardIO,
+    public CardService: CardService) {
     }
 
 
-   async getCard() {
-     const res: boolean = await this.cardIO.canScan();
-     if (res) {
-       let options = {
-         requireExpiry: true,
-         requireCVV: false,
-         requirePostalCode: false
-       };
-        const result = await this.cardIO.scan(options);
-       this.card.cardNumber = result.cardNumber;
-       this.card.cardType = result.cardType
-       this.card.cardholderName = result.cardholderName
-       this.card.cvv = result.cvv
-       this.card.expiryMonth = result.expiryMonth
-       this.card.expiryYear = result.expiryYear
-       this.card.postalCode = result.postalCode
-       this.card.redactedCardNumber = result.redactedCardNumber
-     }
+  async getCard() {
+    this.card = await this.CardService.getCard();
   }
 }
 
