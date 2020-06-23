@@ -1,17 +1,48 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>
-      Tab 1
+      Informacion Tarjeta
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 1</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <br>
+    <ion-card>
+      <ion-card-header>
+        Tarjeta
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row>
+            <ion-col>
+              Numero Tarjeta : {{card.cardNumber}}
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col>
+              Tipo : {{card.cardType}}
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col>
+              Nombre : {{card.cardholderName}}
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col>
+              Mes : {{card.expiryMonth}}
+            </ion-col>
+            <ion-col>
+              Año : {{card.expiryMonth}}
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
 
-  <app-explore-container name="Tab 1 page"></app-explore-container>
+  <br>
+  <ion-button expand="full"  (click)="getCard()" >
+    Escanear tarjeta
+  </ion-button>
 </ion-content>
