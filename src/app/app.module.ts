@@ -12,6 +12,8 @@ import { AppComponent } from './app.component';
 import { Platform } from '@ionic/angular';
 import { Stripe } from '@ionic-native/stripe/ngx';
 import { CardIO } from '@ionic-native/card-io/ngx';
+import { HTTP } from '@ionic-native/http/ngx';
+
 import { HttpClientModule} from '@angular/common/http'
 
 @NgModule({
@@ -24,6 +26,7 @@ import { HttpClientModule} from '@angular/common/http'
     Platform,
     Stripe,
     CardIO,
+    HTTP,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]

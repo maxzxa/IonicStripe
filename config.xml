@@ -6,6 +6,8 @@
     <content src="index.html" />
     <access origin="*" />
     <allow-intent href="http://*/*" />
+    <allow-navigation href="http://lainsoftware.com/*" />
+    <allow-intent href="http://lainsoftware.com/*" />
     <allow-intent href="https://*/*" />
     <allow-intent href="tel:*" />
     <allow-intent href="sms:*" />

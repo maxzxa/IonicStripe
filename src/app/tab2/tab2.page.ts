@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { PaymentService } from "../services/payment.service";
 import { Stripe, loadStripe, StripeElements, StripeElement, StripeCardElement } from '@stripe/stripe-js';
-import { LoadingController } from '@ionic/angular';
+import { LoadingController, Platform } from '@ionic/angular';
 import { AlertController } from '@ionic/angular';
 import { HttpClient, } from '@angular/common/http';
+import { HTTP } from '@ionic-native/http/ngx';
 
 
 @Component({
@@ -39,7 +40,17 @@ export class Tab2Page {
 
   constructor(public LoadingController: LoadingController,
     public AlertController: AlertController,
-    public http: HttpClient) {
+    public http: HttpClient,
+    public nativeHttp: HTTP,
+    public Platform: Platform) {
+    //Don't check SSL Certificate
+    this.nativeHttp.setServerTrustMode('nocheck');
+    this.nativeHttp.setHeader('*', 'Access-Control-Allow-Origin', '*');
+    this.nativeHttp.setHeader('*', 'Access-Control-Allow-Methods', 'POST, GET, OPTIONS, PUT');
+    this.nativeHttp.setHeader('*', 'Accept', 'application/json');
+    this.nativeHttp.setHeader('*', 'content-type', 'application/json');
+    //Important to set the data serializer or the request gets rejected
+    this.nativeHttp.setDataSerializer('json');
     this.getStripe();
   }
 
@@ -69,6 +80,10 @@ export class Tab2Page {
       
       const errorAlert = await this.presentAlert("Exito","Pago Stripe", "Se ha generado con exito el pago de stripe");
       errorAlert.present();
+      this.payment.name = ''
+      this.payment.email = ''
+      this.payment.stripeToken = ''
+      this.payment.amount = 0.00
     } catch (error) 
     {
       const errorAlert = await this.presentAlert("Error","Pago Stripe", error);
@@ -85,11 +100,6 @@ export class Tab2Page {
           this.payment.stripeToken = token.id;
           console.log(this.payment)
 
-
-          var headers = new Headers();
-          headers.append("Accept", 'application/json');
-          headers.append('Content-Type', 'application/json' );
-      
           let postData = {
                   "name": this.payment.name,
                   "email": this.payment.email,
@@ -97,13 +107,21 @@ export class Tab2Page {
                   "amount": this.payment.amount,
                   "currency": this.payment.currency,
           }
+      
 
+        if (this.Platform.is('android') || this.Platform.is('ios'))
+        {
+          const res = await this.nativeHttp.post("http://www.lainsoftware.com/Api/Stripe/Charge", postData, {});
+        }
+        else
+        {
           this.http.post("http://www.lainsoftware.com/Api/Stripe/Charge", postData)
-          .subscribe(data => {
-            console.log(data)
-           }, error => {
-            throw error
-          });
+            .subscribe(data => {
+              console.log(data)
+            }, error => {
+              throw error
+            });
+        }
       } catch (error) {
           throw error
       }
