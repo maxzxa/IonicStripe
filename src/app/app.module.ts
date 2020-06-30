@@ -12,12 +12,12 @@ import { AppComponent } from './app.component';
 import { Platform } from '@ionic/angular';
 import { Stripe } from '@ionic-native/stripe/ngx';
 import { CardIO } from '@ionic-native/card-io/ngx';
-
+import { HttpClientModule} from '@angular/common/http'
 
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [],
-  imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule],
+  imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule, HttpClientModule],
   providers: [
     StatusBar,
     SplashScreen,

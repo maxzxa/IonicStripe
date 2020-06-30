@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
-import { Stripe, StripeBankAccountParams } from '@ionic-native/stripe/ngx'; 
-import { CardIO } from '@ionic-native/card-io/ngx';
-import { CardI } from '../models/card.interface';
-import { BankAccountI } from '../models/bankAccount.interface';
 import { PaymentService } from "../services/payment.service";
+import { Stripe, loadStripe, StripeElements, StripeElement, StripeCardElement } from '@stripe/stripe-js';
+import { LoadingController } from '@ionic/angular';
+import { AlertController } from '@ionic/angular';
+import { HttpClient, } from '@angular/common/http';
+
 
 @Component({
   selector: 'app-tab2',
@@ -23,91 +24,99 @@ export class Tab2Page {
     }
   ]
 
+  stripe: Stripe
+  elements: StripeElements
+  card: StripeCardElement
+
 
   payment = {
+    name: '',
+    email: '',
+    stripeToken: '',
     currency: 'MXN',
     amount: 0.00
   }
 
-  card: CardI = {
-    cardNumber: '',
-    cardType: 'N/R',
-    cardholderName: '',
-    redactedCardNumber: '',
-    cvv: '',
-    expiryMonth: 0,
-    expiryYear: 0,
-    postalCode: ''
+  constructor(public LoadingController: LoadingController,
+    public AlertController: AlertController,
+    public http: HttpClient) {
+    this.getStripe();
   }
 
-  account: StripeBankAccountParams = {
-    routing_number: '',
-    account_number: '',
-    account_holder_name: '', // optional
-    account_holder_type: '', // optional
-    currency: '',
-    country: ''
+  async getStripe() {
+    this.stripe = await loadStripe('pk_test_51GzR5gAWTVCAHbZ1UioBlpVWzhEJQTXbfHOLxB44526U1t8Mg2uDjNGZ9m6IZ1uLIWdCvmq1UdP5WpnTShWfmVsG00sola1wdz');
+    this.elements = this.stripe.elements();
+    this.card = this.elements.create('card');
+    this.card.mount('#card-element');
   }
 
-  constructor(public cardIO: CardIO,
-    public stripe: Stripe) {
-    this.stripe.setPublishableKey('pk_test_51GxJ6FK2YJ453PG8YNwOaHAOL93pEyiIoaARbVJ4GmTm374Io695FuG3rlrB95lpkt7SvVbN8KaN9LXAeOsz5U4d00zTWjpUIS');
-  }
+  async onSubmit() {
+    const loading = await this.LoadingController.create({
+      message: 'Cargando informacion'
+    });
+    try {
+      await loading.present();
+      if(this.payment.name == "")
+        throw "Favor de indicar el nombre"
+      if(this.payment.email == "")
+        throw "Favor de indicar el correo"
 
-  cardNumberChange(event) { 
-    this.card.cardType = "N/R"
-
-    const number = event.target.value;
-
-    let hasOnlyNumbers = /^\d+$/.test(number);
-
-    if (!hasOnlyNumbers) {
-      event.target.value = number.substring(0, number.length - 1)
-      return
+      const res = await this.stripe.createToken(this.card);
+      if (res.error) 
+          throw res.error
+      else 
+          this.stripeTokenHandler(res.token);
+      
+      const errorAlert = await this.presentAlert("Exito","Pago Stripe", "Se ha generado con exito el pago de stripe");
+      errorAlert.present();
+    } catch (error) 
+    {
+      const errorAlert = await this.presentAlert("Error","Pago Stripe", error);
+      errorAlert.present();
+    } finally
+    {
+      loading.dismiss();
     }
 
-    if (number.length > 1) {
-      const first = number.charAt(0)
-      const second = number.charAt(1)
-      if (first == "3") {
-        this.card.cardType = "American Express"
-        return
-      }
-      if (first == "4") {
-        this.card.cardType = "Visa"
-        return
-      }
-      if (first == "5" && (second == "1" || second == "2" || second == "3" || second == "4" || second == "5" )) {
-        this.card.cardType = "Master Card"
-        return
+  }
+
+  async stripeTokenHandler(token) {
+    try {
+          this.payment.stripeToken = token.id;
+          console.log(this.payment)
+
+
+          var headers = new Headers();
+          headers.append("Accept", 'application/json');
+          headers.append('Content-Type', 'application/json' );
+      
+          let postData = {
+                  "name": this.payment.name,
+                  "email": this.payment.email,
+                  "stripeToken": this.payment.stripeToken,
+                  "amount": this.payment.amount,
+                  "currency": this.payment.currency,
+          }
+
+          this.http.post("http://www.lainsoftware.com/Api/Stripe/Charge", postData)
+          .subscribe(data => {
+            console.log(data)
+           }, error => {
+            throw error
+          });
+      } catch (error) {
+          throw error
       }
     }
-  }
 
-  async postPayment() { 
-
-  }
+    async presentAlert(Header: string, SubHeader: string, Message: string) {
+      const alert = await this.AlertController.create({
+        header: Header,
+        subHeader: SubHeader,
+        message: Message,
+        buttons: ['OK']
+      });
   
-  async getCard() {
-    const res: boolean = await this.cardIO.canScan();
-    if (res) {
-      let options = {
-        requireExpiry: true,
-        requireCVV: true,
-        requireCardholderName: true,
-        requirePostalCode: false
-      };
-      const result = await this.cardIO.scan(options);
-      this.card.cardNumber = result.cardNumber;
-      this.card.cardType = result.cardType
-      this.card.cardholderName = result.cardholderName
-      this.card.cvv = result.cvv
-      this.card.expiryMonth = result.expiryMonth
-      this.card.expiryYear = result.expiryYear
-      this.card.postalCode = result.postalCode
-      this.card.redactedCardNumber = result.redactedCardNumber
+      return alert;
     }
-  }
-
-  
 }

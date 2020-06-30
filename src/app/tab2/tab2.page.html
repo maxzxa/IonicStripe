@@ -10,53 +10,6 @@
   <br>
   <ion-card>
     <ion-card-header>
-      Tarjeta
-    </ion-card-header>
-    <ion-card-content>
-      <ion-grid>
-        <ion-row>
-          <ion-col>
-            <ion-item>
-              <ion-label>Numero Tarjeta</ion-label>
-              <ion-input placeholder="XXXX-XXXX-XXXX-XXXX" maxlength=16 [(ngModel)]="card.cardNumber" (input)="cardNumberChange($event)"></ion-input>
-            </ion-item>
-          </ion-col>
-        </ion-row>
-        <ion-row>
-          <ion-col>
-            <ion-item>
-              <ion-label>Tipo</ion-label>
-              <ion-input [(ngModel)]="card.cardType" disabled="true"></ion-input>
-            </ion-item>
-          </ion-col>
-        </ion-row>
-      
-        <ion-row>
-          <ion-col>
-            <ion-item>
-              <ion-label>Mes</ion-label>
-              <ion-input placeholder="00" maxlength=2 type="numeric"></ion-input>
-            </ion-item>
-          </ion-col>
-          <ion-col>
-            <ion-item>
-              <ion-label>Año</ion-label>
-              <ion-input placeholder="00" maxlength=2 type="numeric" ></ion-input>
-            </ion-item>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </ion-card-content>
-  </ion-card>
-
-  <br>
-  <ion-button expand="full" (click)="getCard()">
-    Escanear tarjeta
-  </ion-button>
-
-  <br>
-  <ion-card>
-    <ion-card-header>
       Informacion de Pago
     </ion-card-header>
     <ion-card-content>
@@ -64,11 +17,26 @@
           <ion-row>
             <ion-col>
               <ion-item>
+                <ion-label>Nombre</ion-label>
+                <ion-input [(ngModel)]="payment.name"></ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+            <ion-row>
+              <ion-col>
+                <ion-item>
+                  <ion-label>Correo</ion-label>
+                  <ion-input [(ngModel)]="payment.email" type="email"></ion-input>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+
+
+          <ion-row>
+            <ion-col>
+              <ion-item>
                 <ion-label>Moneda</ion-label>
                 <ion-input [(ngModel)]="payment.currency" disabled="true"></ion-input>
-
-
-
               </ion-item>
             </ion-col>
           </ion-row>
@@ -80,11 +48,19 @@
               </ion-item>
             </ion-col>
           </ion-row>
+          <hr>
+          <ion-row>
+            <ion-col>
+              <ion-label>Informacion de tarjeta</ion-label>
+              <div id="card-element"></div>
+            </ion-col>
+          </ion-row>
+
           </ion-grid>
     </ion-card-content>
   </ion-card>
 <br>
-<ion-button expand="full" (click)="postPayment()">
+<ion-button expand="full" (click)="onSubmit()">
   Pagar
 </ion-button>
   

@@ -1,17 +1,35 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>
-      Tab 3
+      Estatus de Transacciones
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 3</ion-title>
-    </ion-toolbar>
-  </ion-header>
-
-  <app-explore-container name="Tab 3 page"></app-explore-container>
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content
+      pullingIcon="chevron-down-circle-outline"
+      pullingText="Pull to refresh"
+      refreshingSpinner="circles"
+      refreshingText="Cargando...">
+    </ion-refresher-content>
+  </ion-refresher>
+  <ion-card *ngFor="let transaction of transactions">
+    <ion-card-header>
+      <ion-card-subtitle>Estatus: {{transaction.status}}</ion-card-subtitle>
+      <ion-card-title>ID: {{transaction.id}}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      Moneda: {{transaction.currency}}
+      <br>
+      Cantidad: {{transaction.amount / 100}}
+      <br>
+      Tarjeta: {{transaction.source.brand}}  {{transaction.source.funding}}
+      <br>
+      Ultimos 4 digitos: {{transaction.source.last4}}
+      <br>
+      Cliente: {{transaction.customerObject.name}} : {{transaction.customerObject.email}}
+    </ion-card-content>
+  </ion-card>
 </ion-content>
